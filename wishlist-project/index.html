@@ -324,7 +324,150 @@ width:260px;
 }
 
 }
+/* ---------- FIX SELECT DROPDOWN ---------- */
 
+select{
+appearance:none;
+-webkit-appearance:none;
+-moz-appearance:none;
+
+background:rgba(255,255,255,0.12);
+color:white;
+
+padding-left:14px;
+padding-right:40px;
+
+cursor:pointer;
+
+}
+
+/* dropdown menu */
+
+select option{
+background:#1a1f2b;
+color:white;
+}
+
+/* priority color inside dropdown */
+
+select option[value="High"]{
+color:#ff6b81;
+}
+
+select option[value="Medium"]{
+color:#ffd166;
+}
+
+select option[value="Low"]{
+color:#80ffdb;
+}
+
+/* ---------- INPUT FOCUS EFFECT ---------- */
+
+input:focus,select:focus{
+
+outline:none;
+
+box-shadow:
+0 0 0 2px rgba(255,107,129,0.3),
+0 6px 18px rgba(0,0,0,0.4);
+
+}
+
+/* ---------- CARD HOVER ---------- */
+
+.card{
+
+transition:transform .25s ease, box-shadow .25s ease;
+
+}
+
+.card:hover{
+
+transform:translateY(-4px);
+
+box-shadow:
+0 12px 30px rgba(0,0,0,0.5);
+
+}
+
+/* ---------- LINK STYLE ---------- */
+
+.card a{
+
+color:#8ecaff;
+text-decoration:none;
+font-size:14px;
+
+}
+
+.card a:hover{
+
+text-decoration:underline;
+
+}
+
+/* ---------- BUTTON ACTIVE ---------- */
+
+button:active{
+
+transform:scale(0.97);
+
+}
+
+/* ---------- DELETE BUTTON ---------- */
+
+.delete-btn{
+
+transition:background .2s ease, transform .2s ease;
+
+}
+
+.delete-btn:hover{
+
+background:rgba(255,80,80,0.35);
+transform:scale(1.02);
+
+}
+
+/* ---------- SMOOTH SCROLL ---------- */
+
+html{
+scroll-behavior:smooth;
+}
+
+/* ---------- BETTER MOBILE INPUT ---------- */
+
+@media (max-width:600px){
+
+input,select{
+
+font-size:16px;
+
+}
+
+}
+
+/* ---------- RANDOM ANIMATION PERFORMANCE ---------- */
+
+.sky{
+
+will-change:transform;
+
+}
+
+.flying-card{
+
+pointer-events:none;
+
+}
+
+.shooting-star{
+
+pointer-events:none;
+
+}
+  
 </style>
 </head>
 
@@ -365,68 +508,80 @@ width:260px;
 
 <script>
 
-const isMobile = window.innerWidth < 600
+ const isMobile = window.innerWidth < 600
 
 /* ---------- SUPABASE ---------- */
 
 const { createClient } = supabase
 
-const client=createClient(
+const client = createClient(
 "https://dkmlutpxnikwtzrntmts.supabase.co",
 "sb_publishable_bUoFVF3pk_IKgu0R0oweaw_NSdAe6xV"
 )
 
-
 /* ---------- ADD GIFT ---------- */
+
+let submitting=false
 
 async function addGift(){
 
-const name=document.getElementById("gift_name").value
-const link=document.getElementById("link").value
+if(submitting) return
+
+const name=document.getElementById("gift_name").value.trim()
+const link=document.getElementById("link").value.trim()
 const priority=document.getElementById("priority").value
 
-if(!name) return
+if(!name){
+alert("Nhập món quà trước đã 😆")
+return
+}
+
+submitting=true
+
+const btn=document.querySelector("button")
+btn.innerText="Adding..."
+btn.disabled=true
 
 const { error } = await client
 .from("wishlist")
 .insert([
 {
-gift_name: name,
-link: link,
-priority: priority
+gift_name:name,
+link:link,
+priority:priority
 }
 ])
 
 if(error){
-console.error("Insert error:", error)
+console.error(error)
 alert("Không thêm được 😢")
+btn.innerText="Add to wishlist"
+btn.disabled=false
+submitting=false
 return
 }
+
+/* animations */
 
 spawnStar()
 spawnCard()
 spawnSparkle()
 
+/* clear form */
+
 document.getElementById("gift_name").value=""
 document.getElementById("link").value=""
 
-loadGifts()
+/* reload */
 
+await loadGifts()
+
+btn.innerText="Add to wishlist"
+btn.disabled=false
+submitting=false
 }
 
-if(!isMobile){
-
-setInterval(spawnStar,7000)
-setInterval(spawnCard,9000)
-setInterval(spawnWish,12000)
-
-}else{
-
-setInterval(spawnStar,9000)
-
-}
-
-/* ---------- DELETE GIFT ---------- */
+/* ---------- DELETE ---------- */
 
 async function deleteGift(id){
 
@@ -440,34 +595,37 @@ const { error } = await client
 .eq("id", id)
 
 if(error){
-console.error("Delete error:", error)
+console.error(error)
 alert("Không xoá được 😢")
 return
 }
 
 loadGifts()
-
 }
 
 /* ---------- LOAD GIFTS ---------- */
 
 async function loadGifts(){
 
-const {data}=await client
+const {data,error}=await client
 .from("wishlist")
 .select("*")
 .order("created_at",{ascending:false})
 
-const list=document.getElementById("list")
+if(error){
+console.error(error)
+return
+}
 
+const list=document.getElementById("list")
 list.innerHTML=""
 
 data.forEach(g=>{
 
 let pclass="priority-low"
 
-if(g.priority=="High") pclass="priority-high"
-if(g.priority=="Medium") pclass="priority-medium"
+if(g.priority==="High") pclass="priority-high"
+if(g.priority==="Medium") pclass="priority-medium"
 
 list.innerHTML+=`
 
@@ -493,11 +651,9 @@ Em bấm nhầm? Xoá!
 
 loadGifts()
 
-
 /* ---------- SKY ---------- */
 
 const sky=document.getElementById("sky")
-
 
 /* ---------- FIREFLIES ---------- */
 
@@ -512,7 +668,6 @@ f.style.top=Math.random()*100+"vh"
 sky.appendChild(f)
 
 }
-
 
 /* ---------- SHOOTING STAR ---------- */
 
@@ -530,7 +685,6 @@ sky.appendChild(star)
 setTimeout(()=>star.remove(),6000)
 
 }
-
 
 /* ---------- IMAGE CARDS ---------- */
 
@@ -559,7 +713,6 @@ setTimeout(()=>card.remove(),18000)
 
 }
 
-
 /* ---------- WISH TEXT ---------- */
 
 const wishes=[
@@ -587,7 +740,6 @@ setTimeout(()=>w.remove(),20000)
 
 }
 
-
 /* ---------- SPARKLE EFFECT ---------- */
 
 function spawnSparkle(){
@@ -609,6 +761,19 @@ setTimeout(()=>s.remove(),1000)
 
 }
 
+/* ---------- AUTO ANIMATION ---------- */
+
+if(!isMobile){
+
+setInterval(spawnStar,7000)
+setInterval(spawnCard,9000)
+setInterval(spawnWish,12000)
+
+}else{
+
+setInterval(spawnStar,9000)
+
+}
 
 /* ---------- PARALLAX ---------- */
 
@@ -623,11 +788,23 @@ sky.style.transform=`translate(${x*10}px,${y*10}px)`
 
 })
 
-}
+} 
 
 </script>
 
+<b>💝 ${g.gift_name}</b><br>
+
+<span class="${pclass}">${g.priority}</span><br>
+
+${g.link?`<a href="${g.link}" target="_blank">🔗 View product</a><br>`:""}
+
+<button class="delete-btn" onclick="deleteGift('${g.id}')">
+Em bấm nhầm? Xoá!
+</button>
+
+</div>
 </body>
 
 </html>
+
 

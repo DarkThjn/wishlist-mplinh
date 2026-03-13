@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Wishlist Admin</title>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#fafafa;
+max-width:600px;
+margin:auto;
+padding:20px;
+}
+
+h2{
+text-align:center;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:15px;
+border-radius:8px;
+border:none;
+background:#6c5ce7;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+.card{
+background:white;
+border:1px solid #eee;
+border-radius:10px;
+padding:12px;
+margin-top:10px;
+}
+
+.result{
+margin-top:20px;
+padding:15px;
+background:#fff3cd;
+border-radius:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Wishlist Admin 🎁</h2>
+
+<button onclick="randomGift()">🎲 Random Gift</button>
+
+<div id="result"></div>
+
+<h3>All wishlist items</h3>
+
+<div id="list"></div>
+
+<script>
+
+const { createClient } = supabase
+
+const client = createClient(
+"https://dkmlutpxnikwtzrntmts.supabase.co",
+"sb_publishable_bUoFVF3pk_IKgu0R0oweaw_NSdAe6xV"
+)
+
+let gifts=[]
+
+async function loadGifts(){
+
+const {data}=await client
+.from("wishlist")
+.select("*")
+
+gifts=data
+
+const list=document.getElementById("list")
+list.innerHTML=""
+
+data.forEach(g=>{
+
+list.innerHTML+=`
+
+<div class="card">
+<b>${g.gift_name}</b><br>
+${g.priority}<br>
+${g.link?`<a href="${g.link}" target="_blank">View product</a>`:""}
+</div>
+
+`
+
+})
+
+}
+
+function randomGift(){
+
+if(gifts.length==0){
+alert("No gifts yet")
+return
+}
+
+const random=gifts[Math.floor(Math.random()*gifts.length)]
+
+document.getElementById("result").innerHTML=`
+
+<div class="result">
+
+<h3>Today's mission 🎯</h3>
+
+<b>${random.gift_name}</b><br>
+Priority: ${random.priority}<br>
+
+${random.link?`<a href="${random.link}" target="_blank">Open product</a>`:""}
+
+</div>
+
+`
+
+}
+
+loadGifts()
+
+</script>
+
+</body>
+</html>

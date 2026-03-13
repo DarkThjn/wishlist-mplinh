@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Wishlist ❤️</title>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<style>
+
+/* ---------- GLOBAL ---------- */
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+background:#050814;
+color:white;
+overflow-x:hidden;
+}
+
+.form-panel{
+
+background:rgba(255,255,255,0.06);
+backdrop-filter:blur(12px);
+
+padding:24px;
+
+border-radius:18px;
+
+box-shadow:0 10px 40px rgba(0,0,0,0.4);
+
+}
+/* ---------- SKY ---------- */
+
+.sky{
+position:fixed;
+width:100%;
+height:100%;
+top:0;
+left:0;
+z-index:0;
+overflow:hidden;
+}
+
+/* ---------- PARALLAX LAYER ---------- */
+
+.parallax{
+position:absolute;
+width:100%;
+height:100%;
+pointer-events:none;
+}
+
+/* ---------- COUPLE ---------- */
+
+.couple{
+position:fixed;
+bottom:-20px;
+left:50%;
+transform:translateX(-50%);
+width:520px;
+z-index:5;
+pointer-events:none;
+}
+
+/* ---------- UI ---------- */
+
+.container{
+position:relative;
+z-index:10;
+max-width:520px;
+margin:auto;
+padding:30px 20px;
+}
+
+h2{
+text-align:center;
+margin-bottom:25px;
+}
+
+input, select{
+
+width:100%;
+height:52px;
+
+border-radius:14px;
+
+margin-bottom:14px;
+
+font-size:15px;
+
+}
+
+input, select{
+background:rgba(255,255,255,0.12);
+color:white;
+border:none;
+outline:none;
+backdrop-filter:blur(8px);
+}
+
+button{
+
+width:100%;
+height:56px;
+
+margin-top:16px;
+margin-bottom:14px;
+
+border-radius:14px;
+border:none;
+
+background:linear-gradient(135deg,#ff6b81,#ff8fa3);
+
+color:white;
+font-weight:600;
+
+cursor:pointer;
+
+letter-spacing:0.3px;
+
+box-shadow:
+0 6px 18px rgba(255,107,129,0.35),
+0 0 12px rgba(255,107,129,0.25);
+
+}
+button:hover{
+transform:translateY(-1px);
+}
+
+::placeholder{
+color:rgba(255,255,255,0.5);
+}
+
+.card{
+background:rgba(20,25,40,0.75);
+backdrop-filter:blur(6px);
+border-radius:14px;
+padding:16px;
+margin-top:12px;
+margin-bottom:14px;
+}
+
+/* ---------- PRIORITY ---------- */
+
+.priority-high{color:#ff6b81}
+.priority-medium{color:#ffd166}
+.priority-low{color:#80ffdb}
+
+/* ---------- SHOOTING STAR ---------- */
+
+.shooting-star{
+position:absolute;
+width:160px;
+height:2.5px;
+background:linear-gradient(90deg, rgba(255,255,255,0), white);
+box-shadow:0 0 6px white;
+opacity:0.9;
+transform:rotate(45deg);
+animation:shoot 4s linear forwards;
+filter:blur(0.3px);
+}
+
+.shooting-star::before{
+content:"";
+position:absolute;
+
+width:8px;
+height:8px;
+
+background:white;
+border-radius:50%;
+
+right:0;
+top:-2px;
+
+box-shadow:0 0 10px white, 0 0 20px white;
+}
+
+@keyframes shoot {
+0%{
+transform:translate(-200px,-200px) rotate(45deg);
+opacity:1;
+}
+
+100%{
+transform:translate(120vw,120vh) rotate(45deg);
+opacity:0;
+}
+
+}
+
+/* ---------- FIREFLIES ---------- */
+
+.firefly{
+position:absolute;
+width:4px;
+height:4px;
+background:#ffe066;
+border-radius:50%;
+box-shadow:0 0 8px #ffe066;
+animation:float 6s ease-in-out infinite;
+}
+
+@keyframes float{
+0%{transform:translateY(0)}
+50%{transform:translateY(-30px)}
+100%{transform:translateY(0)}
+}
+
+/* ---------- IMAGE CARDS ---------- */
+
+.flying-card{
+position:absolute;
+width:90px;
+border-radius:12px;
+box-shadow:0 10px 20px rgba(0,0,0,0.5);
+animation:cardFly 18s linear forwards;
+}
+
+@keyframes cardFly{
+0%{transform:translate(-200px,-200px) rotate(0deg);opacity:0;}
+10%{opacity:1;}
+100%{transform:translate(120vw,120vh) rotate(720deg);opacity:0;}
+}
+
+/* ---------- WISH TEXT ---------- */
+
+.wish-text{
+position:absolute;
+font-size:13px;
+opacity:0.7;
+white-space:nowrap;
+animation:wishFly 20s linear forwards;
+}
+
+@keyframes wishFly{
+0%{transform:translateX(-200px) translateY(60vh);}
+100%{transform:translateX(120vw) translateY(20vh);}
+}
+
+/* ---------- SPARKLES ---------- */
+
+.sparkle{
+position:absolute;
+width:4px;
+height:4px;
+background:white;
+border-radius:50%;
+box-shadow:0 0 8px white;
+animation:spark 1s ease-out forwards;
+}
+
+@keyframes spark{
+0%{transform:scale(0);}
+50%{transform:scale(2);}
+100%{transform:scale(0);opacity:0;}
+}
+
+.delete-btn{
+
+margin-top:8px;
+padding:8px 10px;
+
+background:rgba(255,80,80,0.15);
+color:#ff7a7a;
+
+border:none;
+border-radius:8px;
+
+font-size:12px;
+cursor:pointer;
+
+}
+
+.delete-btn:hover{
+background:rgba(255,80,80,0.25);
+}
+
+/* ---------- MOBILE RESPONSIVE ---------- */
+
+@media (max-width:600px){
+
+.container{
+padding:20px 18px;
+}
+
+.form-panel{
+padding:18px;
+}
+
+h2{
+font-size:22px;
+margin-bottom:18px;
+}
+
+input,select,button{
+height:50px;
+font-size:16px;
+}
+
+.couple{
+width:260px;
+bottom:-15px;
+}
+
+.card{
+font-size:14px;
+padding:14px;
+margin-bottom:14px;
+}
+
+}
+/* small phones */
+
+@media (max-width: 420px){
+
+.couple{
+width:260px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sky" id="sky">
+<div class="parallax" id="parallax"></div>
+</div>
+
+<img src="assets/couple.png" class="couple">
+
+
+<div class="container">
+
+<h2>Wishlist ❤️</h2>
+
+<div class="form-panel">
+
+<input id="gift_name" placeholder="Thích cái này:">
+<input id="link" placeholder="Link sản phẩm tít tót shop (nếu có)">
+
+<select id="priority">
+<option value="High">🔥 CÁI NÀY THÍCH NHẮMMM</option>
+<option value="Medium">⭐ THÍCH ƠI LÀ THÍCH</option>
+<option value="Low">🌿 Cũng thinh thíchh</option>
+</select>
+
+<button onclick="addGift()">Add to wishlist</button>
+
+</div>
+
+<h3>Your wishes</h3>
+
+<div id="list"></div>
+
+</div>
+
+
+<script>
+
+const isMobile = window.innerWidth < 600
+
+/* ---------- SUPABASE ---------- */
+
+const { createClient } = supabase
+
+const client=createClient(
+"https://dkmlutpxnikwtzrntmts.supabase.co",
+"sb_publishable_bUoFVF3pk_IKgu0R0oweaw_NSdAe6xV"
+)
+
+
+/* ---------- ADD GIFT ---------- */
+
+async function addGift(){
+
+const name=document.getElementById("gift_name").value
+const link=document.getElementById("link").value
+const priority=document.getElementById("priority").value
+
+if(!name) return
+
+const {data, error}=await client
+.from("wishlist")
+.select("*")
+.order("created_at",{ascending:false})
+
+if(error){
+console.error(error)
+return
+}
+
+spawnStar()
+spawnCard()
+spawnSparkle()
+
+loadGifts()
+
+}
+
+if(!isMobile){
+
+setInterval(spawnStar,7000)
+setInterval(spawnCard,9000)
+setInterval(spawnWish,12000)
+
+}else{
+
+setInterval(spawnStar,9000)
+
+}
+
+/* ---------- DELETE GIFT ---------- */
+
+async function deleteGift(id){
+
+const confirmDelete = confirm("Xoá món quà này thật à? 🥺")
+
+if(!confirmDelete) return
+
+const { error } = await client
+.from("wishlist")
+.delete()
+.eq("id", id)
+
+if(error){
+console.error("Delete error:", error)
+alert("Không xoá được 😢")
+return
+}
+
+loadGifts()
+
+}
+
+/* ---------- LOAD GIFTS ---------- */
+
+async function loadGifts(){
+
+const {data}=await client
+.from("wishlist")
+.select("*")
+.order("created_at",{ascending:false})
+
+const list=document.getElementById("list")
+
+list.innerHTML=""
+
+data.forEach(g=>{
+
+let pclass="priority-low"
+
+if(g.priority=="High") pclass="priority-high"
+if(g.priority=="Medium") pclass="priority-medium"
+
+list.innerHTML+=`
+
+<div class="card">
+
+<b>💝 ${g.gift_name}</b><br>
+
+<span class="${pclass}">${g.priority}</span><br>
+
+${g.link?`<a href="${g.link}" target="_blank">🔗 View product</a><br>`:""}
+
+<button class="delete-btn" onclick="deleteGift('${g.id}')">
+Em bấm nhầm? Xoá!
+</button>
+
+</div>
+
+`
+
+})
+
+}
+
+loadGifts()
+
+
+/* ---------- SKY ---------- */
+
+const sky=document.getElementById("sky")
+
+
+/* ---------- FIREFLIES ---------- */
+
+for(let i=0;i<20;i++){
+
+const f=document.createElement("div")
+f.className="firefly"
+
+f.style.left=Math.random()*100+"vw"
+f.style.top=Math.random()*100+"vh"
+
+sky.appendChild(f)
+
+}
+
+
+/* ---------- SHOOTING STAR ---------- */
+
+function spawnStar(){
+
+const star=document.createElement("div")
+
+star.className="shooting-star"
+
+star.style.left=Math.random()*100+"vw"
+star.style.top=Math.random()*20+"vh"
+
+sky.appendChild(star)
+
+setTimeout(()=>star.remove(),6000)
+
+}
+
+
+/* ---------- IMAGE CARDS ---------- */
+
+const cards=[
+"assets/card1.jpg",
+"assets/card2.jpg",
+"assets/card3.jpg",
+"assets/card4.jpg",
+"assets/card5.jpg"
+]
+
+function spawnCard(){
+
+const card=document.createElement("img")
+
+card.className="flying-card"
+
+card.src=cards[Math.floor(Math.random()*cards.length)]
+
+card.style.left=Math.random()*30+"vw"
+card.style.top=Math.random()*20+"vh"
+
+sky.appendChild(card)
+
+setTimeout(()=>card.remove(),18000)
+
+}
+
+
+/* ---------- WISH TEXT ---------- */
+
+const wishes=[
+"Make a wish ✨",
+"Dream big 🌠",
+"For you 💫",
+"Love always 💖",
+"Anh ơi Anh à 🌌"
+]
+
+function spawnWish(){
+
+const w=document.createElement("div")
+
+w.className="wish-text"
+
+w.innerText=wishes[Math.floor(Math.random()*wishes.length)]
+
+w.style.left="-200px"
+w.style.top=Math.random()*70+"vh"
+
+sky.appendChild(w)
+
+setTimeout(()=>w.remove(),20000)
+
+}
+
+
+/* ---------- SPARKLE EFFECT ---------- */
+
+function spawnSparkle(){
+
+for(let i=0;i<15;i++){
+
+const s=document.createElement("div")
+
+s.className="sparkle"
+
+s.style.left=(window.innerWidth/2+Math.random()*80-40)+"px"
+s.style.top=(window.innerHeight/2+Math.random()*80-40)+"px"
+
+sky.appendChild(s)
+
+setTimeout(()=>s.remove(),1000)
+
+}
+
+}
+
+
+/* ---------- PARALLAX ---------- */
+
+if(!isMobile){
+
+document.addEventListener("mousemove",(e)=>{
+
+const x=e.clientX/window.innerWidth
+const y=e.clientY/window.innerHeight
+
+sky.style.transform=`translate(${x*10}px,${y*10}px)`
+
+})
+
+}
+
+</script>
+
+</body>
+</html>

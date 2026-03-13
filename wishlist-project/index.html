@@ -387,19 +387,28 @@ const priority=document.getElementById("priority").value
 
 if(!name) return
 
-const {data, error}=await client
+const { error } = await client
 .from("wishlist")
-.select("*")
-.order("created_at",{ascending:false})
+.insert([
+{
+gift_name: name,
+link: link,
+priority: priority
+}
+])
 
 if(error){
-console.error(error)
+console.error("Insert error:", error)
+alert("Không thêm được 😢")
 return
 }
 
 spawnStar()
 spawnCard()
 spawnSparkle()
+
+document.getElementById("gift_name").value=""
+document.getElementById("link").value=""
 
 loadGifts()
 
@@ -621,3 +630,4 @@ sky.style.transform=`translate(${x*10}px,${y*10}px)`
 </body>
 
 </html>
+

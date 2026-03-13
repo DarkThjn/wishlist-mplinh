@@ -93,15 +93,24 @@ margin-bottom:14px;
 
 font-size:15px;
 
-}
+padding-left:16px;
+padding-right:16px;
 
-input, select{
 background:rgba(255,255,255,0.12);
 color:white;
 border:none;
 outline:none;
+
 backdrop-filter:blur(8px);
+
 }
+
+::placeholder{
+color:rgba(255,255,255,0.55);
+}
+input::placeholder{
+padding-left:2px;
+}  
 
 button{
 
@@ -546,8 +555,8 @@ const { error } = await client
 .from("wishlist")
 .insert([
 {
-gift_name:name,
-link:link,
+gift_name:name.trim(),
+link:link.trim(),
 priority:priority
 }
 ])
@@ -794,6 +803,7 @@ sky.style.transform=`translate(${x*10}px,${y*10}px)`
 </body>
 
 </html>
+
 
 
 

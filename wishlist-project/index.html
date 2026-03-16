@@ -524,7 +524,7 @@ pointer-events:none;
 const { createClient } = supabase
 
 const client = createClient(
-"https://dkmlutpxnikwtzrntmts.supabase.co",
+"https://dkmlutpxnikwztrnmts.supabase.co",
 "sb_publishable_bUoFVF3pk_IKgu0R0oweaw_NSdAe6xV"
 )
 
@@ -537,7 +537,11 @@ async function addGift(){
 if(submitting) return
 
 const name=document.getElementById("gift_name").value.trim()
-const link=document.getElementById("link").value.trim()
+let link=document.getElementById("link").value.trim()
+
+if(link && !link.startsWith("http")){
+link="https://"+link
+}
 const priority=document.getElementById("priority").value
 
 if(!name){
@@ -636,6 +640,22 @@ let pclass="priority-low"
 if(g.priority==="High") pclass="priority-high"
 if(g.priority==="Medium") pclass="priority-medium"
 
+/* FIX LINK */
+
+let productLink=""
+
+if(g.link){
+
+let url=g.link.trim()
+
+if(!url.startsWith("http")){
+url="https://"+url
+}
+
+productLink=`<a href="${url}" target="_blank">🔗 View product</a><br>`
+
+}
+
 list.innerHTML+=`
 
 <div class="card">
@@ -644,7 +664,7 @@ list.innerHTML+=`
 
 <span class="${pclass}">${g.priority}</span><br>
 
-${g.link?`<a href="${g.link}" target="_blank">🔗 View product</a><br>`:""}
+${productLink}
 
 <button class="delete-btn" onclick="deleteGift('${g.id}')">
 Em bấm nhầm? Xoá!
@@ -803,8 +823,3 @@ sky.style.transform=`translate(${x*10}px,${y*10}px)`
 </body>
 
 </html>
-
-
-
-
-
